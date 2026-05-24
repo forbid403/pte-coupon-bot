@@ -23,13 +23,13 @@ logging.basicConfig(
 
 DISCORD_BOT_TOKEN = os.environ["DISCORD_BOT_TOKEN"]
 DISCORD_CHANNEL_ID = int(os.environ["DISCORD_CHANNEL_ID"])
-GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
-GITHUB_REPO = os.environ.get("GITHUB_REPO", "forbid403/pte-coupon-bot")
+GH_TOKEN = os.environ["GH_TOKEN"]
+GH_REPO = os.environ.get("GH_REPO", "forbid403/pte-coupon-bot")
 KNOWN_CODES_PATH = "known_codes.txt"
 
-GH_API = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{KNOWN_CODES_PATH}"
+GH_API = f"https://api.github.com/repos/{GH_REPO}/contents/{KNOWN_CODES_PATH}"
 GH_HEADERS = {
-    "Authorization": f"token {GITHUB_TOKEN}",
+    "Authorization": f"token {GH_TOKEN}",
     "Accept": "application/vnd.github+json",
 }
 
@@ -155,7 +155,7 @@ async def on_message(message: discord.Message):
 
 
 def main():
-    log.info("Starting Discord bot for repo: %s", GITHUB_REPO)
+    log.info("Starting Discord bot for repo: %s", GH_REPO)
     client.run(DISCORD_BOT_TOKEN)
 
 
