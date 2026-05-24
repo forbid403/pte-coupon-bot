@@ -51,6 +51,7 @@ def send_coupon_alert(
 ) -> bool:
     """새 쿠폰 코드 발견 알림. 하나라도 전송 성공 시 True."""
     code_block = "\n".join(f"  `{c}`" for c in codes)
+    invalid_cmds = "  ".join(f"`!invalid {c}`" for c in codes)
     message = (
         "🎟 **PTE 새 쿠폰 코드 발견!**\n\n"
         f"**코드**\n{code_block}\n\n"
@@ -58,7 +59,7 @@ def send_coupon_alert(
         f"**URL**: {url}\n"
         f"**내용**: {context}\n"
         f"**신뢰도**: {confidence}/10\n\n"
-        "_만료/무효 코드는 `known_codes.txt`에 추가하세요._"
+        f"만료/무효 확인 시 입력: {invalid_cmds}"
     )
 
     sent = _discord(message) or _telegram(message)
