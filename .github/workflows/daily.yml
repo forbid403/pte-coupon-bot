@@ -1,0 +1,61 @@
+name: PTE Coupon Monitor (Daily)
+
+on:
+  schedule:
+    # 매일 KST 09:00 = UTC 00:00
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+    inputs:
+      bootstrap:
+        description: "Bootstrap mode (seen all, no alerts)"
+        type: boolean
+        default: false
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        working-directory: pte-coupon-bot
+        run: pip install -r requirements.txt
+
+      - name: Run bot
+        working-directory: pte-coupon-bot
+        env:
+          NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
+          NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          if [ "${{ github.event.inputs.bootstrap }}" = "true" ]; then
+            python bot.py --bootstrap
+          else
+            python bot.py
+          fi
+
+      - name: Commit data.db changes
+        working-directory: pte-coupon-bot
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data.db
+          if git diff --cached --quiet; then
+            echo "No changes to data.db"
+          else
+            git commit -m "chore: update data.db [skip ci]"
+            git push
+          fi
