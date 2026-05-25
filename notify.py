@@ -70,6 +70,22 @@ def send_coupon_alert(
     return sent
 
 
+def send_no_result_alert(new_posts: int, total_posts: int) -> bool:
+    """새 쿠폰 코드가 없을 때 요약 알림. 하나라도 전송 성공 시 True."""
+    message = (
+        "📭 **PTE 쿠폰 모니터링 완료**\n\n"
+        f"새로운 쿠폰 코드가 발견되지 않았습니다.\n"
+        f"검색된 글: {total_posts}개 / 신규 글: {new_posts}개"
+    )
+
+    sent = _discord(message) or _telegram(message)
+    if sent:
+        log.info("No-result alert sent (new_posts=%d, total=%d)", new_posts, total_posts)
+    else:
+        log.warning("No notification channel configured or all failed")
+    return sent
+
+
 # ── 테스트 ──────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")

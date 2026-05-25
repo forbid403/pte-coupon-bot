@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 import storage
 from evaluate import extract_codes, fetch_blog_text
-from notify import send_coupon_alert
+from notify import send_coupon_alert, send_no_result_alert
 from search import fetch_all_results
 
 load_dotenv()
@@ -79,6 +79,10 @@ def run(bootstrap: bool = False):
             )
 
     storage.mark_seen(new_urls)
+
+    if not bootstrap and notified == 0:
+        send_no_result_alert(new_posts=len(new_urls), total_posts=len(posts))
+
     log.info(
         "Done. new_posts=%d, notified=%d, bootstrap=%s",
         len(new_urls), notified, bootstrap,
